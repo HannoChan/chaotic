@@ -73,9 +73,6 @@ Gui, 1: Show, NA
 
 ; Get a handle to this window we have created in order to update it later
 hwnd1 := WinExist()
-WinSet, ExStyle, +0x20, % hwnd1 ; 0x20 = WS_EX_CLICKTHROUGH
-WinSet, Transparent, 100, % hwnd1 ; for convinience, but you can take this out
-WinSet, AlwaysOnTop, On, % hwnd1
 
 ; Create a gdi bitmap with width and height of what we are going to draw into it. This is the entire drawing area for everything
 hbm := CreateDIBSection(Width, Height)
