@@ -73,6 +73,9 @@ Gui, 1: Show, NA
 
 ; Get a handle to this window we have created in order to update it later
 hwnd1 := WinExist()
+WinSet, ExStyle, +0x20, % hwnd1 ; 0x20 = WS_EX_CLICKTHROUGH
+WinSet, Transparent, 100, % hwnd1 ; for convinience, but you can take this out
+WinSet, AlwaysOnTop, On, % hwnd1
 
 ; Create a gdi bitmap with width and height of what we are going to draw into it. This is the entire drawing area for everything
 hbm := CreateDIBSection(Width, Height)
@@ -100,7 +103,8 @@ pPen := Gdip_CreatePen(0xff0000ff, 2)
 ; ; Update the specified window we have created (hwnd1) with a handle to our bitmap (hdc), specifying the x,y,w,h we want it positioned on our screen
 ; ; So this will position our gui at (0,0) with the Width and Height specified earlier
 UpdateLayeredWindow(hwnd1, hdc, 0, 0, Width, Height)
-
+Gosub, updateCount
+SetTimer, updateCount, 300000
 Return
 
 ; *****************************************************
@@ -155,7 +159,7 @@ next() {
 		chaos_list.push(weapon)
 	} else {
 		chaos_list.push(chaos_recipe.one_hand_weapon[2*currentId])
-		chaos_list.push(chaos_recipe.one_hand_weapon[2*currentId + 1])
+		chaos_list.push(chaos_recipe.one_hand_weapon[2*currentId - 1])
 	}
 	chaos_list.push(chaos_recipe.helmet[currentId])
 	chaos_list.push(chaos_recipe.gloves[currentId])
@@ -163,7 +167,7 @@ next() {
 	chaos_list.push(chaos_recipe.body[currentId])
 	chaos_list.push(chaos_recipe.belt[currentId])
 	chaos_list.push(chaos_recipe.ring[2*currentId])
-	chaos_list.push(chaos_recipe.ring[2*currentId + 1])
+	chaos_list.push(chaos_recipe.ring[2*currentId - 1])
 	chaos_list.push(chaos_recipe.amulet[currentId])
 
 	regal := True
@@ -201,7 +205,7 @@ next() {
 		maxId = 0
 		return
 	}
-highlightChaos(chaos_list)
+	highlightChaos(chaos_list)
 	currentId += 1
 }
 
@@ -236,6 +240,29 @@ parseJSON:
 	maxId := Min(weaponMax, helmetMax, glovesMax, bootsMax, bodyMax, beltMax, ringMax, amuletMax)
 	return
 
+updateCount:
+	RunWait, retrieve_data.exe -a %accountName% -p %poesessid% -l %league% -c,,Hide,
+	FileRead json, count.json
+	counter := Jxon_load(json)
+
+	Gdip_TextToGraphics(G, counter.helmet, "x5 y5 cffff0000 r4 s24")
+	Gdip_TextToGraphics(G, counter.gloves, "x75 y5 cffffbe00 r4 s24")
+	Gdip_TextToGraphics(G, counter.boots, "x145 y5 cff00ff00 r4 s24")
+	Gdip_TextToGraphics(G, counter.body, "x215 y5 cffcf00ff r4 s24")
+	Gdip_TextToGraphics(G, counter.weapons, "x285 y5 cffffffff r4 s24")
+	Gdip_TextToGraphics(G, counter.ring, "x355 y5 cff00ffff r4 s24")
+	Gdip_TextToGraphics(G, counter.amulet, "x425 y5 cff00ffff r4 s24")
+	Gdip_TextToGraphics(G, counter.belt, "x495 y5 cff008c8c r4 s24")
+	UpdateLayeredWindow(hwnd1, hdc, 0, 0, Width, Height)
+	;helmet:  ffff0000
+	;gloves:  ffffbe00
+	;boots:   ff00ff00
+	;body:    ffcf00ff
+	;weapons: ffffffff
+	;ring:    ff00ffff
+	;amulet:  ff00ffff
+	;belt:    ff008c8c
+	return
 clear:
 	Gdip_GraphicsClear(G)
 	Gdip_GraphicsClear(pPen)
@@ -270,25 +297,23 @@ Exit:
 ; ******************** HOTKEYS ************************
 ; *****************************************************
 
-^!x::ExitApp
-^!r::
-Reload
-return
+#if WinActive("ahk_group PoeExe")
 ^!c::
 Gosub, clear
 return
 
-^j::
+^y::
 update(0)
 return
-^k::
+^x::
 update(1)
 return
-^l::
+^c::
 update(2)
 return
-^n::
+^v::
 next()
 return
-^m::
-MsgBox %  one_hand_weaponMax " - " two_hand_weaponMax " - " weaponMax " - " helmetMax " - " glovesMax " - " bootsMax " - " bodyMax " - " beltMax " - " ringMax " - " amuletMax
+^t::
+MsgBox, test
+return

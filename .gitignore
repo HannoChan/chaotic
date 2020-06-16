@@ -1,0 +1,8 @@
+config.ini
+retrieve_data.spec
+dist/*
+build/*
+__pycache__/*
+data.json
+count.json
+chaos_recipe.json
