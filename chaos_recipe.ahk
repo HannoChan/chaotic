@@ -311,6 +311,4 @@ return
 ^v::
 next()
 return
-^t::
-MsgBox, test
-return
+#if
