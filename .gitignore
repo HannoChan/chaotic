@@ -1,8 +1,9 @@
 config.ini
 retrieve_data.spec
-dist/*
 build/*
-__pycache__/*
+__pycache__
 data.json
 count.json
 chaos_recipe.json
+.venv
+.vscode

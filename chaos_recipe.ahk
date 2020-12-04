@@ -2,8 +2,8 @@
 #NoEnv
 ;#Warn All
 SetWorkingDir %A_ScriptDir%
-#Include Gdip_All.ahk
-#Include Jxon.ahk
+#Include lib/Gdip_All.ahk
+#Include lib/Jxon.ahk
 GroupAdd, PoEexe, ahk_exe PathOfExile.exe
 GroupAdd, PoEexe, ahk_exe PathOfExileSteam.exe
 GroupAdd, PoEexe, ahk_exe PathOfExile_x64.exe
@@ -35,6 +35,12 @@ global accountName
 global poesessid
 global league
 
+global hk_next
+global hk_clear
+global hk_1
+global hk_2
+global hk_3
+
 ; *****************************************************
 ; ***************** INITIALIZATION ********************
 ; *****************************************************
@@ -47,11 +53,27 @@ currentId := 1
 maxId := 0
 quad := 0
 
-IniRead, accountName, config.ini, DEFAULT, accountName
-IniRead, poesessid, config.ini, DEFAULT, poesessid
-IniRead, league, config.ini, DEFAULT, league
+if !FileExists("config.ini")
+	MsgBox, Config file was not found!
+	ExitApp
 
-if (accountName == "ERROR" or poesessid == "ERROR" or league == "ERROR") {
+IniRead, accountName, config.ini, ACCOUNT, accountName
+IniRead, poesessid, config.ini, ACCOUNT, poesessid
+IniRead, league, config.ini, ACCOUNT, league
+
+IniRead, hk_next, config.ini, HOTKEYS, hk_next
+IniRead, hk_clear, config.ini, HOTKEYS, hk_clear
+IniRead, hk_1, config.ini, HOTKEYS, hk_1
+IniRead, hk_2, config.ini, HOTKEYS, hk_2
+IniRead, hk_3, config.ini, HOTKEYS, hk_3
+
+Hotkey, %hk_next%, hk_next
+Hotkey, %hk_clear%, hk_clear 
+Hotkey, %hk_1%, hk_1 
+Hotkey, %hk_2%, hk_2
+Hotkey, %hk_3%, hk_3
+
+if (accountName == "" or poesessid == "" or league == "") {
 	MsgBox, Your config.ini seems to be empty.
 	ExitApp
 }
@@ -91,17 +113,17 @@ Gdip_SetSmoothingMode(G, 4)
 
 ; Create a slightly transparent (66) blue pen (ARGB = Transparency, red, green, blue) to draw a rectangle
 ; This pen is wider than the last one, with a thickness of 10
-pPen := Gdip_CreatePen(0xff0000ff, 2)
+pPen := Gdip_CreatePen(0xffffffff, 3)
 
 ; Draw a rectangle onto the graphics of the bitmap using the pen just created
 ; Draws the rectangle from coordinates (250,80) a rectangle of 300x200 and outline width of 10 (specified when creating the pen)
-; Gdip_DrawRectangle(G, pPen, StashX, StashY, StashWidth, StashHeight)
+Gdip_DrawRectangle(G, pPen, StashX, StashY, StashWidth, StashHeight)
 
 ; ; Update the specified window we have created (hwnd1) with a handle to our bitmap (hdc), specifying the x,y,w,h we want it positioned on our screen
 ; ; So this will position our gui at (0,0) with the Width and Height specified earlier
 UpdateLayeredWindow(hwnd1, hdc, 0, 0, Width, Height)
 Gosub, updateCount
-SetTimer, updateCount, 300000
+SetTimer, updateCount, 120000
 Return
 
 ; *****************************************************
@@ -110,10 +132,10 @@ Return
 
 getStashPosition(ByRef stashX, ByRef stashY, ByRef stashWidth, ByRef stashHeight) {
     ;WinGetPos, poeX, poeY, poeWidth, poeHeight, Path of Exile
-    stashX := 15
-    stashY := 160
-    stashWidth := 635
-    stashHeight := 635
+    IniRead, stashX, config.ini, DIMENSIONS, x
+	IniRead, stashY, config.ini, DIMENSIONS, y
+	IniRead, stashWidth, config.ini, DIMENSIONS, width
+	IniRead, stashHeight, config.ini, DIMENSIONS, height
 }
 
 highlight(x, y, w, h) {
@@ -134,7 +156,7 @@ highlightChaos(items) {
 }
 
 update(stashId) {
-	RunWait, retrieve_data.exe -a %accountName% -p %poesessid% -l %league% -t %stashId%,,Hide,
+	RunWait, dist\retrieve_data.exe -a %accountName% -p %poesessid% -l %league% -t %stashId%,,Hide,
 	currentId := 1
 
 	GoSub, parseJSON
@@ -212,20 +234,19 @@ next() {
 
 parseJSON:
 
-	FileRead json, chaos_recipe.json
+	FileRead json, temp/chaos_recipe.json
 	chaos_recipe := Jxon_load(json)
 
 	quad := chaos_recipe.quad
 
 	one_hand_weaponMax := chaos_recipe.one_hand_weapon.MaxIndex() // 2
 	two_hand_weaponMax := chaos_recipe.two_hand_weapon.MaxIndex()
-	if (one_hand_weaponMax == "") {
-		weaponMax := two_hand_weaponMax
-	} else if (two_hand_weaponMax == "") {
-		weaponMax := one_hand_weaponMax
-	} else {
-		weaponMax := one_hand_weaponMax + two_hand_weaponMax
-	}
+	if (one_hand_weaponMax == "")
+		one_hand_weaponMax = 0
+	if (two_hand_weaponMax == "")
+		two_hand_weaponMax = 0
+
+	weaponMax := one_hand_weaponMax + two_hand_weaponMax
 	helmetMax := chaos_recipe.helmet.MaxIndex()
 	glovesMax := chaos_recipe.gloves.MaxIndex()
 	bootsMax := chaos_recipe.boots.MaxIndex()
@@ -238,8 +259,8 @@ parseJSON:
 	return
 
 updateCount:
-	RunWait, retrieve_data.exe -a %accountName% -p %poesessid% -l %league% -c,,Hide,
-	FileRead json, count.json
+	RunWait, dist/retrieve_data.exe -a %accountName% -p %poesessid% -l %league% -c,,Hide,
+	FileRead json, temp/count.json
 	counter := Jxon_load(json)
 
 	Gdip_TextToGraphics(G, counter.helmet, "x5 y5 cffff0000 r4 s24")
@@ -295,20 +316,23 @@ Exit:
 ; *****************************************************
 
 #if WinActive("ahk_group PoeExe")
-^!c::
+hk_clear:
 Gosub, clear
 return
 
-^y::
+hk_1:
 update(0)
 return
-^x::
+
+hk_2:
 update(1)
 return
-^c::
+
+hk_3:
 update(2)
 return
-^v::
+
+hk_next:
 next()
 return
 #if

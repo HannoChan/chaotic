@@ -1,5 +1,5 @@
 # importing the requests library 
-import requests, json, argparse
+import requests, json, argparse, os
 
 def populate_chaos_recipe(items):
 	chaos_recipe = {}
@@ -61,10 +61,13 @@ if __name__ == "__main__":
 
 	# sending get request and saving the response as response object 
 	r = requests.get(url = URL, params = PARAMS, cookies = COOKIES) 
-	  
+	
 	# extracting data in json format 
 	data = r.json()
 
+	if not os.path.exists('temp'):
+		os.makedirs('temp')
+		
 	if argument.count:
 		count = {'weapons':0, 'helmet':0, 'gloves':0, 'boots':0, 'body':0, 'ring':0, 'belt':0, 'amulet':0}
 		for tab in data['tabs']:
@@ -94,7 +97,7 @@ if __name__ == "__main__":
 					elif item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Amulets'):
 						count['amulet'] += 1
 
-		with open('count.json', 'w') as f:
+		with open('temp/count.json', 'w') as f:
 			json.dump(count, f)
 
 
@@ -104,8 +107,8 @@ if __name__ == "__main__":
 		chaos_recipe = populate_chaos_recipe(items)
 		chaos_recipe['quad'] = int(data['tabs'][int(argument.tabIndex)]['type'] == 'QuadStash')
 
-		with open('chaos_recipe.json', 'w') as f:
+		with open('temp/chaos_recipe.json', 'w') as f:
 			json.dump(chaos_recipe, f)
 
-	with open('data.json', 'w') as f:
+	with open('temp/data.json', 'w') as f:
 		json.dump(data, f)

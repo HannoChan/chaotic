@@ -1,0 +1,26 @@
+# Fill in your details here
+# Once you are done rename this file to config.ini
+
+[ACCOUNT]
+accountName = 
+poesessid = 
+league = 
+
+# ctrl:  ^
+# alt:   !
+# shift: +
+# win:   #
+# For further information check https://www.autohotkey.com/docs/Hotkeys.htm
+
+[HOTKEYS]
+hk_next = ^!y
+hk_clear = ^!l
+hk_1 = ^!1
+hk_2 = ^!2
+hk_3 = ^!3
+
+[DIMENSIONS]
+x = 15
+y = 125
+width = 635
+height = 635
