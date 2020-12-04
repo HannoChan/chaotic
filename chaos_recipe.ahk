@@ -53,9 +53,10 @@ currentId := 1
 maxId := 0
 quad := 0
 
-if !FileExists("config.ini")
+if !FileExist("config.ini") {
 	MsgBox, Config file was not found!
-	ExitApp
+	ExitApp 
+}
 
 IniRead, accountName, config.ini, ACCOUNT, accountName
 IniRead, poesessid, config.ini, ACCOUNT, poesessid

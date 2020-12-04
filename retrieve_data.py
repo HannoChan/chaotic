@@ -71,31 +71,30 @@ if __name__ == "__main__":
 	if argument.count:
 		count = {'weapons':0, 'helmet':0, 'gloves':0, 'boots':0, 'body':0, 'ring':0, 'belt':0, 'amulet':0}
 		for tab in data['tabs']:
-			if tab['type'] == 'QuadStash':
-				PARAMS['tabIndex'] = tab['i']
-				content = requests.get(url = URL, params = PARAMS, cookies = COOKIES).json()
+			PARAMS['tabIndex'] = tab['i']
+			content = requests.get(url = URL, params = PARAMS, cookies = COOKIES).json()
 
-				for item in content['items']:
-					if item['ilvl'] < 60 or item['identified'] == True or item['frameType'] != 2:
-						continue
-					if item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Weapons/TwoHandWeapons'):
-						count['weapons'] += 2
-					elif item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Weapons/OneHandWeapons'):
-						count['weapons'] += 1
-					elif item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Armours/Helmets'):
-						count['helmet'] += 1
-					elif item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Armours/Gloves'):
-						count['gloves'] += 1
-					elif item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Armours/Boots'):
-						count['boots'] += 1
-					elif item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Armours/BodyArmours'):
-						count['body'] += 1
-					elif item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Belts'):
-						count['belt'] += 1
-					elif item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Rings'):
-						count['ring'] += 1
-					elif item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Amulets'):
-						count['amulet'] += 1
+			for item in content['items']:
+				if item['ilvl'] < 60 or item['identified'] == True or item['frameType'] != 2:
+					continue
+				if item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Weapons/TwoHandWeapons'):
+					count['weapons'] += 2
+				elif item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Weapons/OneHandWeapons'):
+					count['weapons'] += 1
+				elif item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Armours/Helmets'):
+					count['helmet'] += 1
+				elif item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Armours/Gloves'):
+					count['gloves'] += 1
+				elif item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Armours/Boots'):
+					count['boots'] += 1
+				elif item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Armours/BodyArmours'):
+					count['body'] += 1
+				elif item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Belts'):
+					count['belt'] += 1
+				elif item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Rings'):
+					count['ring'] += 1
+				elif item['icon'].startswith('https://web.poecdn.com/image/Art/2DItems/Amulets'):
+					count['amulet'] += 1
 
 		with open('temp/count.json', 'w') as f:
 			json.dump(count, f)
