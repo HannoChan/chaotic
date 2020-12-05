@@ -157,7 +157,7 @@ highlightChaos(items) {
 }
 
 update(stashId) {
-	RunWait, dist\retrieve_data.exe -a %accountName% -p %poesessid% -l %league% -t %stashId%,,Hide,
+	RunWait, dist\retrieve_data.exe -a %accountName% -p %poesessid% -l "%league%" -t %stashId%,,Hide,
 	currentId := 1
 
 	GoSub, parseJSON
@@ -260,7 +260,7 @@ parseJSON:
 	return
 
 updateCount:
-	RunWait, dist/retrieve_data.exe -a %accountName% -p %poesessid% -l %league% -c,,Hide,
+	RunWait, dist/retrieve_data.exe -a %accountName% -p %poesessid% -l "%league%" -c,,Hide,
 	FileRead json, temp/count.json
 	counter := Jxon_load(json)
 
